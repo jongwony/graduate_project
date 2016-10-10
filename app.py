@@ -41,22 +41,37 @@ def uploaded():
         
         #info = InfoFile(UPLOAD_PATH, request.args.get('filename'))
 	filefullpath = info.getfilefullpath()
-        filefullname = info.getfilefullname()
+        filename = info.getfilefullname()
         ext = info.getfileext()
 
 
 	if ext in ('png','jpg','jpeg','gif'):
-                detection.detectionImage(UPLOAD_PATH, filefullname)
-		return render_template('image.html')
+                detection.detectionImage(UPLOAD_PATH, filename)
+                return redirect(url_for('image'))
+		#return render_template('image.html')
 	elif ext in ('mp4'):
+                #return Response(gen(VideoStream(info.getfilefullpath())), mimetype='multipart/x-mixed-replace; boundary=frame')
 	        #return render_template('video.html')
-                return Response(gen(VideoStream(info.getfilefullpath())), mimetype='multipart/x-mixed-replace; boundary=frame')
+                return redirect(url_for('video', filename=filename))
 	else:
 		return render_template('error.html')
 
 @app.route('/')
 def index():
     return render_template('upload.html')
+
+@app.route('/image')
+def image():
+    return render_template('image.html')
+
+@app.route('/video')
+def video():
+    return render_template('video.html')
+
+@app.route('/stream')
+def stream():
+    return Response(gen(VideoStream(info.getfilefullpath())), mimetype='multipart/x-mixed-replace; boundary=frame')
+    
 
 @app.route('/test')
 def test():

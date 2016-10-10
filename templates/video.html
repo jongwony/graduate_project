@@ -5,26 +5,20 @@
 <h1>Video Uploaded Successfully</h1>
 
 <div id='source'>
-<video width='640' height='480' autoplay onclick="this.play();">
+<video width='320' height='240' autoplay onclick="this.play();">
 				<source src="{{ url_for('static', filename='uploads/' ~ request.args.get('filename')) }}" type='video/mp4'>
 				Your browser does not support the Video. 
 </video>
 <p id='caption'>Video File Uploaded</p>
 </div>
 
-<div id='detect' style='margin:auto;'>
-<video width='640' height='480' autoplay>
-				<source src="{{ url_for('static', filename='uploads/' ~ 'Detection_' ~ request.args.get('filename')) }}" type='video/mp4'>
-				Your browser does not support the Video.
-</video>
-<p id='caption'>Face Detection Video</p>
-</div>
+<iframe src="{{ url_for('stream') }}"></iframe>
 
 {% endblock %}
 
 {% block script %}
 <script>
-var video = document.getElementById('video');
+var video = document.getElementById('source');
 video.addEventListener('click', function() {
 								video.play();
 								}, false);

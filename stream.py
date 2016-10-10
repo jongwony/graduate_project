@@ -19,12 +19,19 @@ class VideoStream(object):
 
 
         # fps calculate
+        # sometimes video frame = 0 zero division error occur
         fps = self.video.get(cv2.CAP_PROP_FPS)
+        if int(fps)==0:
+            print "Error! fps = 0"
+            fps = 25
+
         rate = int(round(1000 / fps))
 
         ######### opencv coding  #########
+        # sometimes video frame = 0 gray image error
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        
+        #print gray; #error handling
+
         faces = self.face_cascade.detectMultiScale(gray, 1.3, 5)
         for(x, y, w, h) in faces:
             cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
