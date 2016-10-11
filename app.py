@@ -12,70 +12,25 @@ from infofile import InfoFile
 from stream import VideoStream
 
 # opencv image
-import detection
+from detection import detectionImage
 
 UPLOAD_PATH='/var/www/flask/static/uploads'
-ALLOWED_EXTENSIONS=set(['txt','pdf','png','jpg','jpeg','gif','mp4'])
+ALLOWED_EXTENSIONS=set(['png','jpg','jpeg','gif','mp4'])
+
+# Flask process?
 app = Flask(__name__)
-app.config['UPLOAD_PATH'] = UPLOAD_PATH
+
+# global variable config
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024 * 1024
 
+# global variable 
+app.config['UPLOAD_PATH'] = UPLOAD_PATH
+app.config['fileinfo'] = None
+app.config['tfinfo'] = None
+
+# extension split
 def allowed_file(filename):
 	return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
-
-@app.route('/uploaded', methods=['GET','POST'])
-def uploaded():
-        # class globalization
-        global info
-
-	if request.method == 'POST':
-		file = request.files['file']
-		if file and allowed_file(file.filename):
-			filename = secure_filename(file.filename)
-                        
-                        # file name into class
-                        info = InfoFile(UPLOAD_PATH, file.filename)
-			
-                        file.save(os.path.join(app.config['UPLOAD_PATH'], filename))
-			return redirect(url_for('uploaded', filename=filename))
-        
-        #info = InfoFile(UPLOAD_PATH, request.args.get('filename'))
-	filefullpath = info.getfilefullpath()
-        filename = info.getfilefullname()
-        ext = info.getfileext()
-
-
-	if ext in ('png','jpg','jpeg','gif'):
-                detection.detectionImage(UPLOAD_PATH, filename)
-                return redirect(url_for('image'))
-		#return render_template('image.html')
-	elif ext in ('mp4'):
-                #return Response(gen(VideoStream(info.getfilefullpath())), mimetype='multipart/x-mixed-replace; boundary=frame')
-	        #return render_template('video.html')
-                return redirect(url_for('video', filename=filename))
-	else:
-		return render_template('error.html')
-
-@app.route('/')
-def index():
-    return render_template('upload.html')
-
-@app.route('/image')
-def image():
-    return render_template('image.html')
-
-@app.route('/video')
-def video():
-    return render_template('video.html')
-
-@app.route('/stream')
-def stream():
-    return Response(gen(VideoStream(info.getfilefullpath())), mimetype='multipart/x-mixed-replace; boundary=frame')
-    
-
-@app.route('/test')
-def test():
-    return render_template('test.html')
 
 # Video Streaming
 def gen(stream):
@@ -84,6 +39,55 @@ def gen(stream):
         yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
+# upload module
+@app.route('/upload/<info>', methods=['GET','POST'])
+def upload(info):
+    if request.method == 'POST':
+        file = request.files['file']
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_PATH'], filename))
+            return redirect(url_for('upload', info=info, filename=filename))
+    
+    #### GET method ####
+    # filename into global class
+    app.config['fileinfo'] = InfoFile(app.config['UPLOAD_PATH'], request.args.get('filename'))
+    filename = app.config['fileinfo'].getfilefullname()
+    ext = app.config['fileinfo'].getfileext()
+    print info
+
+    # redirect from extension
+    if ext in ['png','jpg','jpeg','gif']:
+        return redirect(url_for('image', info=info, filename=filename))
+    elif ext in ['mp4']:
+        return redirect(url_for('video', info=info, filename=filename))
+    else:
+        return redirect(url_for('error'))
+
+@app.route('/')
+def index():
+    return render_template('upload.html')
+
+@app.route('/image/<info>')
+def image(info):
+    if info == 'fileinfo':
+        filename = app.config['fileinfo'].getfilefullname()
+        detectionImage(app.config['UPLOAD_PATH'], filename)
+        return render_template('image.html')
+    elif info == 'tfinfo':
+        filename = app.config['fileinfo'].getfilefullname()
+        return render_template('test.heml')
+    else:
+        return render_template('error.html')
+
+@app.route('/video/<info>')
+def video(info):
+    return render_template('video.html')
+
+@app.route('/stream')
+def stream():
+    filename = app.config['fileinfo'].getfilefullpath()
+    return Response(gen(VideoStream(filename)), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

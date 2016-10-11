@@ -20,12 +20,12 @@ class VideoStream(object):
 
         # fps calculate
         # sometimes video frame = 0 zero division error occur
-        fps = self.video.get(cv2.CAP_PROP_FPS)
+        fps = self.video.get(cv2.CAP_PROP_FPS) + 5
         if int(fps)==0:
             print "Error! fps = 0"
             fps = 25
 
-        rate = int(round(1000 / fps))
+        rate = int(round(1000 /fps))
 
         ######### opencv coding  #########
         # sometimes video frame = 0 gray image error
