@@ -6,6 +6,9 @@ __pycache__/
 # Upload directory
 static/uploads/*.*
 
+# testfile
+*test*
+
 # Python 2.x compile
 *.pyc
 
