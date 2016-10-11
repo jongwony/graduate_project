@@ -51,10 +51,9 @@ def upload(info):
     
     #### GET method ####
     # filename into global class
-    app.config['fileinfo'] = InfoFile(app.config['UPLOAD_PATH'], request.args.get('filename'))
-    filename = app.config['fileinfo'].getfilefullname()
-    ext = app.config['fileinfo'].getfileext()
-    print info
+    app.config[info] = InfoFile(app.config['UPLOAD_PATH'], request.args.get('filename'))
+    filename = app.config[info].getfilefullname()
+    ext = app.config[info].getfileext()
 
     # redirect from extension
     if ext in ['png','jpg','jpeg','gif']:
@@ -71,12 +70,12 @@ def index():
 @app.route('/image/<info>')
 def image(info):
     if info == 'fileinfo':
-        filename = app.config['fileinfo'].getfilefullname()
+        filename = app.config[info].getfilefullname()
         detectionImage(app.config['UPLOAD_PATH'], filename)
         return render_template('image.html')
     elif info == 'tfinfo':
-        filename = app.config['fileinfo'].getfilefullname()
-        return render_template('test.heml')
+        filename = app.config[info].getfilefullname()
+        return render_template('tfimage.html')
     else:
         return render_template('error.html')
 
@@ -88,6 +87,7 @@ def video(info):
 def stream():
     filename = app.config['fileinfo'].getfilefullpath()
     return Response(gen(VideoStream(filename)), mimetype='multipart/x-mixed-replace; boundary=frame')
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

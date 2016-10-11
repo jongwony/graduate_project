@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 import os
 
-from flask import Flask, url_for, render_template, request, redirect, Response
+from flask import Flask, url_for, render_template, request, redirect, Response, jsonify
 from werkzeug import secure_filename
 from infofile import InfoFile
 from stream import VideoStream
@@ -32,12 +32,17 @@ def upload(info):
     print app.config[info].getfilefullpath()
     print app.config[info].getfilepurename()
     print app.config[info].getfilefullname()
-    print url_for('upload', info=info, filename=filename)
     return render_template('error.html')
 
 @app.route('/')
 def index():
     return render_template('test.html')
+
+@app.route('/_add_numbers')
+def add_numbers():
+    a = request.args.get('a', 0, type=int)
+    b = request.args.get('b', 0, type=int)
+    return jsonify(result=a+b)
 
 @app.route('/test')
 def test():

@@ -14,11 +14,12 @@
 
 <iframe width='320' height='240' src="{{ url_for('stream') }}"></iframe>
 
-<img width='240', height='240' src="{{ url_for('image', info='tfinfo') }}" />
-<form action="{{ url_for('upload', info='tfinfo') }}" method='POST' enctype=multipart/form-data>
+<form>
 				<input type=file name=file>
-				<input type=submit value=Upload>
+				<input type=button onclick="fileUpload(this.form, 'tfinfo')" value=Upload>
 </form>
+
+<img id='tfimage'></img>
 
 {% endblock %}
 
@@ -28,5 +29,8 @@ var video = document.getElementById('source');
 video.addEventListener('click', function() {
 								video.play();
 								}, false);
+</script>
+<script>
+	{% include 'js/tfimage.js' %}
 </script>
 {% endblock %}
