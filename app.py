@@ -74,6 +74,7 @@ def image(info):
         detectionImage(app.config['UPLOAD_PATH'], filename)
         return render_template('image.html')
     elif info == 'tfinfo':
+        print 'Tf info ready!'
         filename = app.config[info].getfilefullname()
         return render_template('tfimage.html')
     else:
