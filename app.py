@@ -34,8 +34,10 @@ def allowed_file(filename):
 
 # Video Streaming
 def gen(stream):
-    while True:
+    while True:    
         frame = stream.get_frame()
+        if frame==False:
+            break
         yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
