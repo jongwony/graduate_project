@@ -9,50 +9,30 @@ python 2.x
 
 ## structure
 
+```
 flask
-
 ├── app.py
-
 │   ├── stream.py
-
 │   ├── detection.py
-
 │   ├── facetracking.py
-
 │   └── infofile.py
-
 │
-
 ├── templates/
-
 │   ├── js/
-
 │   ├── layout.html
-
 │   ├── upload.html
-
 │   ├── image.html
-
 │   └── video.html
-
 │
-
 ├── static/
-
 │   ├── uploads/
-
 │   └── css
-
 │
-
 ├── .gitignore
-
 ├── README.md
-
 ├── favicon.ico
-
 └── uwsgi.ini
-
+```
 
 #### Prerequisite
 
