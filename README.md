@@ -7,6 +7,33 @@ Graduation piece
 ubuntu 14.04 on AWS EC2
 python 2.x
 
+## structure
+
+```
+flask
+├── app.py
+│   ├── stream.py
+│   ├── detection.py
+│   ├── facetracking.py
+│   └── infofile.py
+│
+├── templates/
+│   ├── js/
+│   ├── layout.html
+│   ├── upload.html
+│   ├── image.html
+│   └── video.html
+│
+├── static/
+│   ├── uploads/
+│   └── css
+│
+├── .gitignore
+├── README.md
+├── favicon.ico
+└── uwsgi.ini
+```
+
 #### Prerequisite
 
 [CPU Only](//lastone9182.github.io/2016/08/29/aws-flask.html)
