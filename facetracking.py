@@ -10,7 +10,7 @@ import pdb
 face_cascade = cv2.CascadeClassifier('/var/www/flask/haarcascade_frontalface_default.xml')
 
 
-filename = 'gf_na.mp4'
+filename = 'static/uploads/mov_bbb.mp4'
 
 
 cap = cv2.VideoCapture(filename)
