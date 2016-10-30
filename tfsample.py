@@ -49,7 +49,7 @@ class TfFunc(object):
 
 face_cascade = cv2.CascadeClassifier('/var/www/flask/haarcascade_frontalface_default.xml')
 
-cap = cv2.VideoCapture('mov_bbb.mp4')
+cap = cv2.VideoCapture('static/uploads/mov_bbb.mp4')
 test = TfFunc()
 ret, prev_frame = cap.read()
 prev_gray = tuple()
