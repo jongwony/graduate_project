@@ -7,18 +7,25 @@ class VideoStream(object):
         self.video=cv2.VideoCapture(filename)
         self.face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
         
+        # snapshot
         self.trackzone = tuple()
         self.pre_gr = np.zeros
         self.pre_hsv = np.zeros
 
+        # detection flag
         self.detectface = False
 
+        # prev frame
         ret, self.pre_fr = self.video.read()
         if ret:
             self.pre_gr = cv2.cvtColor(self.pre_fr, cv2.COLOR_BGR2GRAY)
             self.pre_hsv = cv2.cvtColor(self.pre_fr, cv2.COLOR_BGR2HSV)
         else:
             print "Video File %s Not Found" % filename
+
+        # for tensorflow image
+        self.tfimage = None
+
 
 
 

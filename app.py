@@ -12,23 +12,30 @@ from infofile import InfoFile
 from stream import VideoStream
 
 # opencv image
-from detection import detectionImage
+from detection import detectionImage, tftraceImage
+
+# tensorflow model
+from mymodel import MySimpleModel
+
+import numpy as np
+
 
 UPLOAD_PATH='/var/www/flask/static/uploads'
 ALLOWED_EXTENSIONS=set(['png','jpg','jpeg','gif','mp4'])
 
-# Flask process?
+# Flask
 app = Flask(__name__)
 
 # global variable config
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024 * 1024
+app.config['UPLOAD_PATH'] = UPLOAD_PATH
 
 # global variable 
-app.config['UPLOAD_PATH'] = UPLOAD_PATH
+app.config['TENSOR_MODEL_VAR'] = MySimpleModel(28, 10)
 app.config['fileinfo'] = None
 app.config['tfinfo'] = None
 
-# extension split
+# split extension
 def allowed_file(filename):
 	return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
@@ -76,8 +83,9 @@ def image(info):
         detectionImage(app.config['UPLOAD_PATH'], filename)
         return render_template('image.html')
     elif info == 'tfinfo':
-        print 'Tf info ready!'
-        filename = app.config[info].getfilefullname()
+        filename = app.config[info].getfilefullpath()
+        roi_gray = tftraceImage(filename)
+        VideoStream.tfimage = roi_gray
         return render_template('tfimage.html')
     else:
         return render_template('error.html')

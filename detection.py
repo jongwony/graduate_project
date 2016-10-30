@@ -16,7 +16,7 @@ def detectionImage(uploadpath, filename):
 
     # found face
     faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-    for(x, y, w, h) in faces:
+    for x, y, w, h in faces:
         cv2.rectangle(img, (x, y),(x+w, y+h), (255,0,0), 2)
         roi_gray = gray[y:y+h, x:x+w]
         roi_color = img[y:y+h, x:x+w]
@@ -28,3 +28,15 @@ def detectionImage(uploadpath, filename):
 
     cv2.destroyAllWindows()
 
+def tftraceImage(imagepath):
+    # Gray image load
+    img = cv2.imread(imagepath)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    roi_gray = np.zeros(gray.shape)
+
+    # found face
+    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+    for x, y, w, h in faces:
+        roi_gray = gray[y:y+h, x:x+w]
+
+    return roi_gray

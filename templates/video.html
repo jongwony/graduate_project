@@ -12,14 +12,18 @@
 <p id='caption'>Video File Uploaded</p>
 </div>
 
+
 <iframe width='320' height='240' src="{{ url_for('stream') }}"></iframe>
+
+<div>
+<div id='tfdiv'></div>
 
 <form>
 				<input id='tffile' type=file name=file>
 				<input type=button onclick='fileUpload(this.form, "/upload/tfinfo", "tfdiv"); return false;' value=upload>
 </form>
+</div>
 
-<div id='tfdiv'></div>
 
 
 {% endblock %}
