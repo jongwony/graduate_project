@@ -5,7 +5,7 @@ import numpy as np
 class VideoStream(object):
     def __init__(self, filename):
         self.video=cv2.VideoCapture(filename)
-        self.face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+        self.face_cascade = cv2.CascadeClassifier('haarcascades_cuda/haarcascade_frontalface_default.xml')
         
         # snapshot
         self.trackzone = tuple()
@@ -23,8 +23,8 @@ class VideoStream(object):
         else:
             print "Video File %s Not Found" % filename
 
-        # for tensorflow image
-        self.tfimage = None
+        # query image
+        self.queryimg = None
 
 
 

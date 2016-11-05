@@ -12,10 +12,7 @@ from infofile import InfoFile
 from stream import VideoStream
 
 # opencv image
-from detection import detectionImage, tftraceImage
-
-# tensorflow model
-from mymodel import MySimpleModel
+from detection import detectionImage
 
 import numpy as np
 
@@ -31,7 +28,6 @@ app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024 * 1024
 app.config['UPLOAD_PATH'] = UPLOAD_PATH
 
 # global variable 
-app.config['TENSOR_MODEL_VAR'] = MySimpleModel(28, 10)
 app.config['fileinfo'] = None
 app.config['tfinfo'] = None
 
