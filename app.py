@@ -12,7 +12,7 @@ from infofile import InfoFile
 from stream import VideoStream
 
 # opencv image
-from detection import detectionImage
+from detection import detectionImage, traceImage
 
 import numpy as np
 
@@ -80,8 +80,8 @@ def image(info):
         return render_template('image.html')
     elif info == 'tfinfo':
         filename = app.config[info].getfilefullpath()
-        roi_gray = tftraceImage(filename)
-        VideoStream.tfimage = roi_gray
+        roi_gray = traceImage(filename)
+        VideoStream.queryimg = roi_gray
         return render_template('tfimage.html')
     else:
         return render_template('error.html')

@@ -25,6 +25,8 @@ class VideoStream(object):
 
         # query image
         self.queryimg = None
+ 	self.roi_query = None	
+	self.query_hsv_hist = None
 
 
 
@@ -87,9 +89,6 @@ class VideoStream(object):
             # fps calculate
             # sometimes video frame = 0 zero division error occur
             fps = self.video.get(cv2.CAP_PROP_FPS) + 5
-            if int(fps)==0:
-                print "Error! fps = 0"
-                fps = 25
 
             rate = int(round(1000 /fps))
 
@@ -97,6 +96,18 @@ class VideoStream(object):
             gr = cv2.cvtColor(fr, cv2.COLOR_BGR2GRAY)
             hsv = cv2.cvtColor(fr, cv2.COLOR_BGR2HSV)
 
+
+	    if self.queryimg is not None:
+		queryhsv = cv2.cvtColor(self.queryimg, cv2.COLOR_BGR2HSV)
+		querygr = cv2.cvtColor(self.queryimg, cv2.COLOR_BGR2GRAY)
+	        queryfaces = self.face_cascade.detectMultiScale(querygr, 1.3, 5)		
+		for x, y, w, h in queryfaces:
+		    self.roi_query = queryhsv[y:y+h, x:x+w]
+		
+		self.query_hsv_hist = cv2.calcHist([self.roi_query], [0], None, [256], [0,256])
+
+		
+		
 
             faces = self.face_cascade.detectMultiScale(gr, 1.3, 5)
             
@@ -146,8 +157,9 @@ class VideoStream(object):
                 self.trackzone = np.vstack((np.array([nx, ny, w, h], dtype=np.int32), self.trackzone))
                 self.trackzone = np.delete(self.trackzone, i+1, 0)
 
-
-
+			
+		
+		
 
                 # Histogram
                 pre_hsv_hist = cv2.calcHist([self.pre_hsv[ny:ny+h, nx:nx+w]], [0], None, [256], [0,256])
@@ -156,9 +168,12 @@ class VideoStream(object):
                 histval = cv2.compareHist(pre_hsv_hist, roi_hsv_hist, cv2.HISTCMP_CORREL)
                 if histval < 80:
                     self.trackzone = np.delete(self.trackzone, i, 0)
+		
 
-
-
+		query_histval = cv2.compareHist(self.query_hsv_hist, roi_hsv_hist, cv2.HISTCMP_CORREL)
+		print query_histval
+		
+		    
                 i = i + 1
 
 
