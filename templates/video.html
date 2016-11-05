@@ -1,19 +1,19 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-
-<h1>Video Uploaded Successfully</h1>
+<h1 class="col-xs-12" style="text-align:center;">Video Uploaded Successfully</h1>
+<div class="col-xs-12" style="text-align:center;">
 
 <div id='source'>
-<video width='320' height='240' autoplay onclick="this.play();">
+<video style="width:100%;height:auto;" autoplay onclick="this.play();">
 				<source src="{{ url_for('static', filename='uploads/' ~ request.args.get('filename')) }}" type='video/mp4'>
-				Your browser does not support the Video. 
+				Your browser does not support the Video.
 </video>
 <p id='caption'>Video File Uploaded</p>
 </div>
 
 
-<iframe width='320' height='240' src="{{ url_for('stream') }}"></iframe>
+<iframe style="border:0;width:100%;height:auto;" src="{{ url_for('stream') }}"></iframe>
 
 <div>
 <div id='tfdiv'></div>
@@ -22,6 +22,7 @@
 				<input id='tffile' type=file name=file>
 				<input type=button onclick='fileUpload(this.form, "/upload/tfinfo", "tfdiv"); return false;' value=upload>
 </form>
+</div>
 </div>
 
 

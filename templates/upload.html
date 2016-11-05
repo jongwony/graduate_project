@@ -1,18 +1,19 @@
 {% extends 'layout.html' %}
 {% block body %}
-<h1>Upload Image or Video!</h1>
-<form action="{{ url_for('upload', info='fileinfo') }}" method='POST' enctype=multipart/form-data>
-	<input type=file name=file>
-	<input type=submit value=Upload>
-</form>
-
+<h1 class="col-xs-12" style="text-align:center;">Upload Image or Video!</h1>
+<div class="col-xs-12" style="text-align:center;background-color:#ccc">
+  <form id="formData" action="{{ url_for('upload', info='fileinfo') }}" method='POST' enctype=multipart/form-data>
+  	<input type="file" name="file">
+    <input type="submit" class="btn btn-warning" value="Upload">
+  </form>
 <progress id="progressBar" value="0" max="100" style="width:300px;"></progress>
 <span id="status"></span>
 <h4 id="finalMessage"></h4>
+</div>
 {% endblock %}
 {% block script %}
 <script type="text/javascript" language="javascript">
-function prograssBarSim(al) {
+function progressBarSim(al) {
 				var bar = document.getElementById('progressBar');
 				var status = document.getElementById('status');
 				status.innerHTML = al+"%";
@@ -26,8 +27,9 @@ function prograssBarSim(al) {
 								document.getElementById('finalMessage').innerHTML = "Upload complete";
 				}
 }
+var fileVal=document.getElementById("");
+alert(fileVal.value);
 var amountLoaded = 0;
 progressBarSim(amountLoaded);
 </script>
 {% endblock %}
-
