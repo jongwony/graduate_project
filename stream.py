@@ -2,15 +2,17 @@
 import cv2
 import numpy as np
 
+
 class VideoStream(object):
     def __init__(self, filename):
+        
         self.video=cv2.VideoCapture(filename)
-        self.face_cascade = cv2.CascadeClassifier('haarcascades_cuda/haarcascade_frontalface_default.xml')
+        self.face_cascade = cv2.CascadeClassifier('haarcascades/haarcascade_frontalface_default.xml')
         
         # snapshot
-        self.trackzone = tuple()
         self.pre_gr = np.zeros
         self.pre_hsv = np.zeros
+        self.trackzone = tuple()
 
         # detection flag
         self.detectface = False
@@ -18,6 +20,8 @@ class VideoStream(object):
         # prev frame
         ret, self.pre_fr = self.video.read()
         if ret:
+            if self.pre_fr.shape[0] > 800 or self.pre_fr.shape[1] > 800:
+                self.pre_fr = cv2.resize(self.pre_fr, (0,0), fx=0.5, fy=0.5)
             self.pre_gr = cv2.cvtColor(self.pre_fr, cv2.COLOR_BGR2GRAY)
             self.pre_hsv = cv2.cvtColor(self.pre_fr, cv2.COLOR_BGR2HSV)
         else:
@@ -36,42 +40,17 @@ class VideoStream(object):
 
 
 
-
-    def rm_neighborhood(self, track):
-        i = 0
-
-        for x, y, w, h in track:
-            j = 0
-
-            if track.shape[0] == 0:
-                break
-            else:
-                i = i % track.shape[0]
-
-
-            for nx, ny, nw, nh in track:
-                j = j % track.shape[0]
-
-                if j == i:
-                    j = j + 1
-                    continue
-
-                if ((np.abs(nx-x) < int(nw/3)) and (np.abs(ny-y) < int(nh/3))):
-                    track = np.delete(track, j, 0)
-
-                j = j + 1
-            i = i + 1
-
-
-
-
-
     def opticalFlow(self, prev, curr, (x, y, w, h)):
         flow = cv2.calcOpticalFlowFarneback(prev, curr, None, 0.5, 1, max(w, h), 3, 5, 1.2, 0)
 
-        for j in range(h):
-            for i in range(w):
-                [ny, nx] = [y, x] + (flow[y:y+h, x:x+w][j,i]/w*h)
+        # out of range
+        try:
+            for j in range(h):
+                for i in range(w):
+                    [ny, nx] = [y, x] + (flow[y:y+h, x:x+w][j,i]/w*h)
+        except IndexError as e:
+            return x, y
+
 
         return (int(round(nx)), int(round(ny)))
 
@@ -82,10 +61,13 @@ class VideoStream(object):
 
 
     def get_frame(self):
+
         # video frame read
         ret, fr = self.video.read()
 
         if ret:
+            if fr.shape[0] > 800 or fr.shape[1] > 800:
+                fr = cv2.resize(fr, (0,0), fx=0.5, fy=0.5)
             # fps calculate
             # sometimes video frame = 0 zero division error occur
             fps = self.video.get(cv2.CAP_PROP_FPS) + 5
@@ -127,17 +109,31 @@ class VideoStream(object):
 
 
 
-
             
             # face detection
-            for(x, y, w, h) in faces:
+            for x, y, w, h in faces:
                 detectface = True
                 cv2.rectangle(fr, (x, y), (x+w, y+h), (255,0,0), 2)
             
             
-            
-            self.rm_neighborhood(self.trackzone)
+            # remove neighborhood
+            i = 0
+            for x, y, w, h in self.trackzone:
+                j = 0
+                if self.trackzone.shape[0] == 0:
+                    break
+                else:
+                    i = i % self.trackzone.shape[0]
+                for nx, ny, nw, nh in self.trackzone:
+                    j = j % self.trackzone.shape[0]
+                    if j == i:
+                        j = j + 1
+                        continue
+                    if ((np.abs(nx-x) < int(w/3)) and (np.abs(ny-y) < int(h/3))):
+                        self.trackzone = np.delete(self.trackzone, j, 0)
 
+                    j = j + 1
+                i = i + 1
 
             # face tracking
             i = 0
@@ -157,8 +153,6 @@ class VideoStream(object):
                 self.trackzone = np.vstack((np.array([nx, ny, w, h], dtype=np.int32), self.trackzone))
                 self.trackzone = np.delete(self.trackzone, i+1, 0)
 
-			
-		
 		
 
                 # Histogram
@@ -166,12 +160,16 @@ class VideoStream(object):
                 roi_hsv_hist = cv2.calcHist([hsv[y:y+h, x:x+w]], [0], None, [256], [0,256])
 
                 histval = cv2.compareHist(pre_hsv_hist, roi_hsv_hist, cv2.HISTCMP_CORREL)
-                if histval < 80:
+                if histval < 0.80:
                     self.trackzone = np.delete(self.trackzone, i, 0)
 		
+                print histval
 
-		query_histval = cv2.compareHist(self.query_hsv_hist, roi_hsv_hist, cv2.HISTCMP_CORREL)
-		print query_histval
+                if self.roi_query is not None:
+                    query_histval = cv2.compareHist(self.query_hsv_hist, roi_hsv_hist, cv2.HISTCMP_CORREL)
+                    if query_histval < 0.80:
+                        self.trackzone = np.delete(self.trackzone, i, 0)
+		    print query_histval
 		
 		    
                 i = i + 1

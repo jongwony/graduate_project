@@ -2,13 +2,13 @@
 {% block body %}
 <h1>Image Uploaded Successfully</h1>
 
-<div id='source'>
-				<img src="{{ url_for('static', filename='uploads/' ~ request.args.get('filename')) }}" />
-				<p>Image File Uploaded</p>
+<div id='source' style='width:90%;margin:auto;text-align:center'>
+				<img style='width:100%' src="{{ url_for('static', filename='uploads/' ~ request.args.get('filename')) }}" />
+				<p>Source Image</p>
 </div>
 
-<div id='detect'>
-				<img src="{{ url_for('static', filename='uploads/' ~ 'Detection_' ~ request.args.get('filename')) }}" />
+<div id='detect' style='width:90%;margin:auto;text-align:center'>
+				<img style='width:100%' src="{{ url_for('static', filename='uploads/' ~ 'Detection_' ~ request.args.get('filename')) }}" />
 				<p>Detection Image</p>
 </div>
 

@@ -2,18 +2,27 @@
 <html>
 	<head>
 		<title>{% block title %}Graduation piece{% endblock %}</title>
+
+		<link type='text/css' rel='stylesheet' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/themes/smoothness/jquery-ui.min.css' media='screen' />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" media="screen">
-		{% block head %}
-		<meta charset='utf-8'>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}">
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">	
 		<link rel='shortcut icon' href="{{ url_for('static', filename='favicon.ico') }}">
-		{% endblock %}
+		
+		<meta charset='utf-8'>
+		<meta name='viewport' content='width=device-width, initial-scale=1'>
+		
+		{% block head %}{% endblock %}
 	</head>
 
 	<body>
 		{% block body %}{% endblock %}
+		
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js" charset="UTF-8"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js" charset="UTF-8"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	
 		{% block script %}{% endblock %}
-		<div id="footer">
-			{% block footer %}{% endblock %}
-		</div>
 	</body>
 </html>

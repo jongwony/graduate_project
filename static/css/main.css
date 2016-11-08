@@ -1,0 +1,18 @@
+h1 { color: #111; font-family: 'Droid serif', serif; font-size: 36px; font-weight: 400; font-style: italic; line-height: 44px; margin: 24px 0 12px; text-align: center; text-shadow: gray 0.1em 0.1em 0.2em }
+
+h3 { text-shadow: black 0.1em 0.1em 0.2em }
+
+p { color: #605833; font-family: 'Droid Sans', sans-serif; font-size: 15px; font-weight: 400; line-height: 24px; margin: 0 0 14px; }
+
+.carousel-indicators li {
+				border:1px solid #444;
+}
+
+.carousel-indicators .active {
+				border:1px solid #444;
+				background-color: #444;
+}
+
+.carousel-control.left, .carousel-control.right {
+				    background-image: none
+}

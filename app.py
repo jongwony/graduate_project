@@ -2,7 +2,7 @@
 import os
 
 # flask import
-from flask import Flask, url_for, render_template, request, redirect, Response
+from flask import Flask, url_for, render_template, request, redirect, Response, make_response
 from werkzeug import secure_filename
 
 # filename class
@@ -39,7 +39,7 @@ def allowed_file(filename):
 def gen(stream):
     while True:    
         frame = stream.get_frame()
-        if frame==False:
+        if not frame:
             break
         yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
@@ -72,6 +72,7 @@ def upload(info):
 def index():
     return render_template('upload.html')
 
+
 @app.route('/image/<info>')
 def image(info):
     if info == 'fileinfo':
@@ -82,7 +83,7 @@ def image(info):
         filename = app.config[info].getfilefullpath()
         roi_gray = traceImage(filename)
         VideoStream.queryimg = roi_gray
-        return render_template('tfimage.html')
+        return render_template('trackimg.html')
     else:
         return render_template('error.html')
 
@@ -94,6 +95,7 @@ def video(info):
 def stream():
     filename = app.config['fileinfo'].getfilefullpath()
     return Response(gen(VideoStream(filename)), mimetype='multipart/x-mixed-replace; boundary=frame')
+
 
 
 if __name__ == '__main__':

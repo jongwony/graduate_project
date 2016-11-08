@@ -4,25 +4,24 @@
 <h1 class="col-xs-12" style="text-align:center;">Video Uploaded Successfully</h1>
 <div class="col-xs-12" style="text-align:center;">
 
-<div id='source'>
-<video style="width:100%;height:auto;" autoplay onclick="this.play();">
+<div id='sourcediv'>
+<video id='source' style="width:90%;height:auto;" autoplay onclick="this.play();">
 				<source src="{{ url_for('static', filename='uploads/' ~ request.args.get('filename')) }}" type='video/mp4'>
 				Your browser does not support the Video.
 </video>
-<p id='caption'>Video File Uploaded</p>
+<p id='caption'>Source Data</p>
 </div>
 
-
-<iframe style="border:0;width:100%;height:auto;" src="{{ url_for('stream') }}"></iframe>
-
-<div>
-<div id='tfdiv'></div>
-
-<form>
-				<input id='tffile' type=file name=file>
-				<input type=button onclick='fileUpload(this.form, "/upload/tfinfo", "tfdiv"); return false;' value=upload>
+<div id='trackdiv'>
+<iframe style="margin:auto;width:90%;" src="{{ url_for('stream') }}"></iframe>
+<p id='caption'>Processing Data</p>
+</div>
+<div class='container' style='text-align:center;margin-top:2em;margin-bottom:2em;width:80%;'>
+				<div id='tfdiv' style='text-align:center;'></div>
+					<form>
+									<input class='btn btn-default' style='float:left' id='tffile' type='file' name='file'>
+									<input id='anotherimgpop' class='btn btn-default' style='float:right' type='button' data-placement='top' data-content='Another Tracking Image Upload!'  onclick='fileUpload(this.form, "/upload/tfinfo", "tfdiv"); return false;' value=upload>
 </form>
-</div>
 </div>
 
 
@@ -30,13 +29,20 @@
 {% endblock %}
 
 {% block script %}
-<script>
-/*var video = document.getElementById('source');
-video.addEventListener('click', function() {
+<script type="text/javascript">
+var video = document.getElementById('source');
+video.addEventListener('onload', function() {
 								video.play();
-								}, false);*/
+								}, false);
 </script>
-<script>
-	{% include 'js/tfimage.js' %}
+<script type='text/javascript'>
+
+setTimeout(function() {
+								$('iframe').contents().find('head').append("<style type='text/css'> img {width:100%;} </style>");
+								$('iframe').height($('iframe').contents().height());
+								
+								$('#anotherimgpop').popover('show');
+								},	500);
 </script>
+<script src="{{ url_for('static', filename='js/trackimg.js') }}"></script>
 {% endblock %}
