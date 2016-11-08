@@ -12,10 +12,9 @@ from infofile import InfoFile
 from stream import VideoStream
 
 # opencv image
-from detection import detectionImage, traceImage
+from detection import detectionImage
 
 import numpy as np
-
 
 UPLOAD_PATH='/var/www/flask/static/uploads'
 ALLOWED_EXTENSIONS=set(['png','jpg','jpeg','gif','mp4'])
@@ -80,9 +79,11 @@ def image(info):
         detectionImage(app.config['UPLOAD_PATH'], filename)
         return render_template('image.html')
     elif info == 'tfinfo':
-        filename = app.config[info].getfilefullpath()
-        roi_gray = traceImage(filename)
-        VideoStream.queryimg = roi_gray
+        filename = app.config[info].getfilefullname()
+        detectimg = detectionImage(app.config['UPLOAD_PATH'], filename)
+	print detectimg.shape
+	import stream
+        stream.setQueryimg(detectimg)
         return render_template('trackimg.html')
     else:
         return render_template('error.html')

@@ -1,7 +1,12 @@
 # -*- coding: UTF-8 -*-
 import cv2
 import numpy as np
+ 
+queryimg = None
 
+def setQueryimg(query):
+    global queryimg
+    queryimg = query
 
 class VideoStream(object):
     def __init__(self, filename):
@@ -14,6 +19,10 @@ class VideoStream(object):
         self.pre_hsv = np.zeros
         self.beforefaces = tuple()
         self.track_db = dict()
+
+	# query image
+	self.roi_query = None
+	self.query_hsv_hist = None
 
         # flag
         self.detectface = False
@@ -29,12 +38,6 @@ class VideoStream(object):
             self.pre_hsv = cv2.cvtColor(self.pre_fr, cv2.COLOR_BGR2HSV)
         else:
             print "Video File %s Not Found" % filename
-
-        # query image
-        self.queryimg = None
- 	self.roi_query = None	
-	self.query_hsv_hist = None
-
 
 
 
@@ -76,11 +79,12 @@ class VideoStream(object):
             ######### opencv coding  #########
             gr = cv2.cvtColor(fr, cv2.COLOR_BGR2GRAY)
             hsv = cv2.cvtColor(fr, cv2.COLOR_BGR2HSV)
-
-
-	    if self.queryimg is not None:
-		queryhsv = cv2.cvtColor(self.queryimg, cv2.COLOR_BGR2HSV)
-		querygr = cv2.cvtColor(self.queryimg, cv2.COLOR_BGR2GRAY)
+		
+	    
+	    # query image search
+	    if queryimg is not None:
+		queryhsv = cv2.cvtColor(queryimg, cv2.COLOR_BGR2HSV)
+		querygr = cv2.cvtColor(queryimg, cv2.COLOR_BGR2GRAY)
 	        queryfaces = self.face_cascade.detectMultiScale(querygr, scaleFactor=1.08, minNeighbors=5)		
 		for x, y, w, h in queryfaces:
 		    self.roi_query = queryhsv[y:y+h, x:x+w]
@@ -134,14 +138,14 @@ class VideoStream(object):
                 roi_hsv_hist = cv2.calcHist([hsv[y:y+h, x:x+w]], [0], None, [256], [0,256])
 
                 histval = cv2.compareHist(pre_hsv_hist, roi_hsv_hist, cv2.HISTCMP_CORREL)
-                if histval < 0.80:
+                if histval < 0.88:
                     self.track_db.pop(k)
                     self._label -= 1
 		
 
                 if self.roi_query is not None:
                     query_histval = cv2.compareHist(self.query_hsv_hist, roi_hsv_hist, cv2.HISTCMP_CORREL)
-                    if query_histval < 0.80:
+                    if query_histval < 0.60:
                         self.track_db.pop(k)
                         self._label -= 1
 		    print query_histval

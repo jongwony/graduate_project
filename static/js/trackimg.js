@@ -2,7 +2,6 @@
 
 function fileUpload(form, action_url, div_id) {
     // Create the iframe...
-    debugger;
 
 		var iframe = document.createElement("iframe");
     iframe.setAttribute("id", "upload_iframe");
@@ -20,7 +19,6 @@ function fileUpload(form, action_url, div_id) {
 
     // Add event...
     var eventHandler = function () {
-						debugger;
 
             if (iframeId.detachEvent) iframeId.detachEvent("onload", eventHandler);
             else iframeId.removeEventListener("load", eventHandler, false);
@@ -39,11 +37,11 @@ function fileUpload(form, action_url, div_id) {
 						// serverside contents
             // document.getElementById(div_id).innerHTML = content;
 
-						document.getElementById(div_id).innerHTML="<img id='trackimg' width='128' height='128' />"
+						document.getElementById(div_id).innerHTML="<img id='trackimg' style='width:20%;height:auto' />"
 
 						// img spread
 						var imgname = document.getElementById('tffile').files[0].name;
-						document.getElementById('trackimg').src="{{ url_for('static',filename='uploads/') }}" + imgname;
+						document.getElementById('trackimg').src="/static/uploads/" + imgname;
 
 
             // Del the iframe...

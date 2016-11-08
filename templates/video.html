@@ -16,11 +16,11 @@
 <iframe style="margin:auto;width:90%;" src="{{ url_for('stream') }}"></iframe>
 <p id='caption'>Processing Data</p>
 </div>
-<div class='container' style='text-align:center;margin-top:2em;margin-bottom:2em;width:80%;'>
 				<div id='tfdiv' style='text-align:center;'></div>
+<div class='container' style='text-align:center;margin-top:2em;margin-bottom:2em;width:80%;'>
 					<form>
 									<input class='btn btn-default' style='float:left' id='tffile' type='file' name='file'>
-									<input id='anotherimgpop' class='btn btn-default' style='float:right' type='button' data-placement='top' data-content='Another Tracking Image Upload!'  onclick='fileUpload(this.form, "/upload/tfinfo", "tfdiv"); return false;' value=upload>
+									<input id='anotherimgpop' class='btn btn-default' style='float:right' type='button' data-placement='top' data-content='Another Tracking Image Upload!'  onclick="fileUpload(this.form, '/upload/tfinfo', 'tfdiv'); return false;" value=upload>
 </form>
 </div>
 
