@@ -7,7 +7,7 @@ class VideoStream(object):
     def __init__(self, filename):
         
         self.video=cv2.VideoCapture(filename)
-        self.face_cascade = cv2.CascadeClassifier('haarcascades/haarcascade_frontalface_default.xml')
+        self.face_cascade = cv2.CascadeClassifier('haarcascades_cuda/haarcascade_frontalface_default.xml')
         
         # snapshot
         self.pre_gr = np.zeros
@@ -61,8 +61,6 @@ class VideoStream(object):
 
 
 
-
-
     def get_frame(self):
 
         # video frame read
@@ -83,7 +81,7 @@ class VideoStream(object):
 	    if self.queryimg is not None:
 		queryhsv = cv2.cvtColor(self.queryimg, cv2.COLOR_BGR2HSV)
 		querygr = cv2.cvtColor(self.queryimg, cv2.COLOR_BGR2GRAY)
-	        queryfaces = self.face_cascade.detectMultiScale(querygr, scaleFactor=1.05, minNeighbors=5)		
+	        queryfaces = self.face_cascade.detectMultiScale(querygr, scaleFactor=1.08, minNeighbors=5)		
 		for x, y, w, h in queryfaces:
 		    self.roi_query = queryhsv[y:y+h, x:x+w]
 		
@@ -92,26 +90,12 @@ class VideoStream(object):
 		
 		
 
-            faces = self.face_cascade.detectMultiScale(gr, scaleFactor=1.05, minNeighbors=5)
+            faces = self.face_cascade.detectMultiScale(gr, scaleFactor=1.08, minNeighbors=5)
             
 
-            """
-            # trackzone refresh
-            if faces == tuple():
-                self.detectface = False
-            else:
-                if self.trackzone == tuple():
-                    self.trackzone = faces
-
-                if self.trackzone.shape[0] == 0:
-                    self.trackzone = faces
-                elif self.trackzone.shape[0] > 0:
-                    self.trackzone = np.vstack((faces, self.trackzone))
-            
-            """            
             # face detection
             for x, y, w, h in faces:
-                cv2.rectangle(fr, (x, y), (x+w, y+h), (255,0,0), 2)
+                cv2.rectangle(fr, (x, y), (x+w, y+h), (255,0,0), 1.5)
                 
                 self.detectface = True
 
@@ -134,38 +118,16 @@ class VideoStream(object):
                             self.track_db[k1] = self.track_db.pop(k2)
                             self._label -= 1
             
-            print self.track_db
 
             self.trackface += 1
-            self.trackface %= 3
+            self.trackface %= 2
             if self.trackface == 0:
                 self.beforefaces = faces
 
                         
-            
-            """
-            # remove neighborhood
-            i = 0
-            for x, y, w, h in self.trackzone:
-                j = 0
-                if self.trackzone.shape[0] == 0:
-                    break
-                else:
-                    i = i % self.trackzone.shape[0]
-                for nx, ny, nw, nh in self.trackzone:
-                    j = j % self.trackzone.shape[0]
-                    if j == i:
-                        j = j + 1
-                        continue
-                    if ((np.abs(nx-x) < int(w/3)) and (np.abs(ny-y) < int(h/3))):
-                        self.trackzone = np.delete(self.trackzone, j, 0)
-
-                    j = j + 1
-                i = i + 1
-            """
             for k, (x, y, w, h) in self.track_db.items():
                 nx, ny = self.opticalFlow(self.pre_hsv[...,0], hsv[...,0], (x, y, w, h))
-                cv2.rectangle(fr, (nx, ny), (nx+w, ny+h), (0,255,0), 2)
+                cv2.rectangle(fr, (nx, ny), (nx+w, ny+h), (0,255,0), 1)
                 self.track_db[k] = list((nx, ny, w, h))
 
                 pre_hsv_hist = cv2.calcHist([self.pre_hsv[ny:ny+h, nx:nx+w]], [0], None, [256], [0,256])
@@ -185,45 +147,6 @@ class VideoStream(object):
 		    print query_histval
 		
 
-            """
-            # face tracking
-            i = 0
-            for x, y, w, h in self.trackzone:
-                i = i % self.trackzone.shape[0]
-
-
-
-                # Optical Flow
-                nx, ny = self.opticalFlow(self.pre_hsv[...,0], hsv[...,0], (x, y, w, h))
-
-
-
-
-                cv2.rectangle(fr, (nx, ny), (nx+w, ny+h), (0,0,255), 1)
-
-                self.trackzone = np.vstack((np.array([nx, ny, w, h], dtype=np.int32), self.trackzone))
-                self.trackzone = np.delete(self.trackzone, i+1, 0)
-
-		
-
-                # Histogram
-                pre_hsv_hist = cv2.calcHist([self.pre_hsv[ny:ny+h, nx:nx+w]], [0], None, [256], [0,256])
-                roi_hsv_hist = cv2.calcHist([hsv[y:y+h, x:x+w]], [0], None, [256], [0,256])
-
-                histval = cv2.compareHist(pre_hsv_hist, roi_hsv_hist, cv2.HISTCMP_CORREL)
-                if histval < 0.60:
-                    self.trackzone = np.delete(self.trackzone, i, 0)
-		
-
-                if self.roi_query is not None:
-                    query_histval = cv2.compareHist(self.query_hsv_hist, roi_hsv_hist, cv2.HISTCMP_CORREL)
-                    if query_histval < 0.80:
-                        self.trackzone = np.delete(self.trackzone, i, 0)
-		    print query_histval
-		
-		    
-                i = i + 1
-            """
 
             # snapshot
             self.pre_gr = gr.copy()
