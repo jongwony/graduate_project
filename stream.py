@@ -95,7 +95,7 @@ class VideoStream(object):
 
             # face detection
             for x, y, w, h in faces:
-                cv2.rectangle(fr, (x, y), (x+w, y+h), (255,0,0), 1.5)
+                cv2.rectangle(fr, (x, y), (x+w, y+h), (255,0,0), 2)
                 
                 self.detectface = True
 
@@ -126,8 +126,8 @@ class VideoStream(object):
 
                         
             for k, (x, y, w, h) in self.track_db.items():
-                nx, ny = self.opticalFlow(self.pre_hsv[...,0], hsv[...,0], (x, y, w, h))
-                cv2.rectangle(fr, (nx, ny), (nx+w, ny+h), (0,255,0), 1)
+                nx, ny = self.opticalFlow(self.pre_gr, gr, (x, y, w, h))
+                cv2.rectangle(fr, (nx, ny), (nx+w, ny+h), (0,0,255), 1)
                 self.track_db[k] = list((nx, ny, w, h))
 
                 pre_hsv_hist = cv2.calcHist([self.pre_hsv[ny:ny+h, nx:nx+w]], [0], None, [256], [0,256])
