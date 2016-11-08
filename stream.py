@@ -85,7 +85,7 @@ class VideoStream(object):
 	    if queryimg is not None:
 		queryhsv = cv2.cvtColor(queryimg, cv2.COLOR_BGR2HSV)
 		querygr = cv2.cvtColor(queryimg, cv2.COLOR_BGR2GRAY)
-	        queryfaces = self.face_cascade.detectMultiScale(querygr, scaleFactor=1.08, minNeighbors=5)		
+	        queryfaces = self.face_cascade.detectMultiScale(querygr, scaleFactor=1.1, minNeighbors=5)		
 		for x, y, w, h in queryfaces:
 		    self.roi_query = queryhsv[y:y+h, x:x+w]
 		
@@ -94,7 +94,7 @@ class VideoStream(object):
 		
 		
 
-            faces = self.face_cascade.detectMultiScale(gr, scaleFactor=1.08, minNeighbors=5)
+            faces = self.face_cascade.detectMultiScale(gr, scaleFactor=1.1, minNeighbors=5)
             
 
             # face detection
@@ -106,7 +106,7 @@ class VideoStream(object):
 
             for x1, y1, w1, h1 in faces:
                 for x2, y2, w2, h2 in self.beforefaces:
-                    if(np.abs(x1-x2)<w1/2 and np.abs(w1-w2)<15) or (np.abs(y1-y2)<h1/2 and np.abs(h1-h2)<15):
+                    if(np.abs(x1-x2)<w1/2 and np.abs(w1-w2)<30) or (np.abs(y1-y2)<h1/2 and np.abs(h1-h2)<30):
                         self.track_db[self._label] = list((x1, y1, w1, h1))
                         self._label += 1
 
@@ -114,7 +114,7 @@ class VideoStream(object):
                 for k2, (x2, y2, w2, h2) in self.track_db.items():
                     if k1 >= k2:
                         continue
-                    if(np.abs(x1-x2)<w1/2 and np.abs(w1-w2)<15) or (np.abs(y1-y2)<h1/2 and np.abs(h1-h2)<15):
+                    if(np.abs(x1-x2)<w1/2 and np.abs(w1-w2)<30) or (np.abs(y1-y2)<h1/2 and np.abs(h1-h2)<30):
                         self.track_db[k1] = self.track_db.pop(k2)
                         self._label -= 1
                     elif np.abs(x1-x2)<np.abs(w1-w2) or np.abs(y1-y2)<np.abs(h1-h2):
@@ -131,7 +131,7 @@ class VideoStream(object):
                         
             for k, (x, y, w, h) in self.track_db.items():
                 nx, ny = self.opticalFlow(self.pre_gr, gr, (x, y, w, h))
-                cv2.rectangle(fr, (nx, ny), (nx+w, ny+h), (0,0,255), 1)
+                cv2.rectangle(fr, (nx, ny), (nx+w, ny+h), (0,255,0), 1)
                 self.track_db[k] = list((nx, ny, w, h))
 
                 pre_hsv_hist = cv2.calcHist([self.pre_hsv[ny:ny+h, nx:nx+w]], [0], None, [256], [0,256])
