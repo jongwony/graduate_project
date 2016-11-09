@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 import os
+import tensorflow as tf
 
 # flask import
 from flask import Flask, url_for, render_template, request, redirect, Response, make_response

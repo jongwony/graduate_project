@@ -12,7 +12,7 @@ class VideoStream(object):
     def __init__(self, filename):
         
         self.video=cv2.VideoCapture(filename)
-        self.face_cascade = cv2.CascadeClassifier('haarcascades/haarcascade_frontalface_default.xml')
+        self.face_cascade = cv2.CascadeClassifier('haarcascades_cuda/haarcascade_frontalface_default.xml')
         
         # snapshot
         self.pre_gr = np.zeros
@@ -43,25 +43,8 @@ class VideoStream(object):
 
 
     def __del__(self):
-        self.video.release()
-
-
-
-    def opticalFlow(self, prev, curr, (x, y, w, h)):
-        flow = cv2.calcOpticalFlowFarneback(prev, curr, None, 0.5, 1, max(w, h), 3, 5, 1.2, 0)
-
-        # out of range
-        try:
-            for j in range(h):
-                for i in range(w):
-                    [ny, nx] = [y, x] + (flow[y:y+h, x:x+w][j,i]/w*h)
-        except IndexError as e:
-            return x, y
-
-
-        return (int(round(nx)), int(round(ny)))
-
-
+	queryimg = None
+	self.video.release()
 
 
 
@@ -86,17 +69,24 @@ class VideoStream(object):
 	    if queryimg is not None:
 		queryhsv = cv2.cvtColor(queryimg, cv2.COLOR_BGR2HSV)
 		querygr = cv2.cvtColor(queryimg, cv2.COLOR_BGR2GRAY)
-	        queryfaces = self.face_cascade.detectMultiScale(querygr, scaleFactor=1.2, minNeighbors=3)		
+	        queryfaces = self.face_cascade.detectMultiScale(querygr, scaleFactor=1.08, minNeighbors=5)		
 		for x, y, w, h in queryfaces:
 		    self.roi_query = queryhsv[y:y+h, x:x+w]
                     break
 		
-		self.query_hsv_hist = cv2.calcHist([self.roi_query], [0], None, [200], [0,200])
+		self.query_hsv_hist = cv2.calcHist([self.roi_query], [0], None, [256], [0,256])
 
+                if self.roi_query is not None:
+                    if len(self.track_db) > 0:
+                        roi_hsv_hist = cv2.calcHist([hsv[y:y+h, x:x+w]], [0], None, [256], [0,256])
+                        query_histval = cv2.compareHist(self.query_hsv_hist, roi_hsv_hist, cv2.HISTCMP_CORREL)
+                        if query_histval < 0.80:
+                            self.track_db.pop(k)
+                            self._label -= 1
 		
 		
 
-            faces = self.face_cascade.detectMultiScale(gr, scaleFactor=1.2, minNeighbors=3)
+            faces = self.face_cascade.detectMultiScale(gr, scaleFactor=1.25, minNeighbors=3)
             
 
             # face detection
@@ -125,39 +115,44 @@ class VideoStream(object):
                             self._label -= 1
             
 
-            self.trackface += 1
-            self.trackface %= 3
-            if self.trackface == 0:
-                self.beforefaces = faces
-
-            print len(self.track_db)
+            self.beforefaces = faces
+		
 
             for k, (x, y, w, h) in self.track_db.items():
-                nx, ny = self.opticalFlow(self.pre_gr, gr, (x, y, w, h))
+		xs = int(round(0.75*x))
+		ys = int(round(0.75*y))
+		xe = int(round(0.75*x+0.75*w+0.25*self.pre_gr.shape[1]))
+		ye = int(round(0.75*y+0.75*h+0.25*self.pre_gr.shape[0]))
+        	prev = self.pre_gr[ys:ye, xs:xe]
+		curr = gr[ys:ye, xs:xe]
+        	
+		# out of range
+        	try:
+		    flow = cv2.calcOpticalFlowFarneback(prev, curr, None, 0.5, 1, min(w, h), 3, 5, 1.2, 0)
+	
+            	    for j in range(h):
+                	for i in range(w):
+                    	    [ny, nx] = [y, x] + (flow[j,i])
+        	except:
+            	    self.track_db.pop(k)
+		    self._label -= 1
+		    break 
+		
+		nx, ny = int(round(nx)), int(round(ny))
                 cv2.rectangle(fr, (nx, ny), (nx+w, ny+h), (0,255,0), 1)
                 self.track_db[k] = list((nx, ny, w, h))
 
 		
 		
   
-                    #pre_hsv_hist = cv2.calcHist([self.pre_hsv[ny:ny+h, nx:nx+w]], [0], None, [180], [0,180])
-                #    roi_hsv_hist = cv2.calcHist([hsv[y:y+h, x:x+w]], [0], None, [180], [0,180])
+                pre_hsv_hist = cv2.calcHist([self.pre_hsv[ny:ny+h, nx:nx+w]], [0], None, [256], [0,256])
+                roi_hsv_hist = cv2.calcHist([hsv[y:y+h, x:x+w]], [0], None, [256], [0,256])
 
-                #    histval = cv2.compareHist(pre_hsv_hist, roi_hsv_hist, cv2.HISTCMP_CORREL)
-                #    if histval < 0.88:
-                #        self.track_db.pop(k)
-                #        self._label -= 1
-		
+                histval = cv2.compareHist(pre_hsv_hist, roi_hsv_hist, cv2.HISTCMP_CORREL)
+                if histval < 0.88:
+                    self.track_db.pop(k)
+                    self._label -= 1
 
-                if self.roi_query is not None:
-                    if len(self.track_db) > 0:
-                        roi_hsv_hist = cv2.calcHist([hsv[y:y+h, x:x+w]], [0], None, [200], [0,200])
-                        query_histval = cv2.compareHist(self.query_hsv_hist, roi_hsv_hist, cv2.HISTCMP_CORREL)
-                        if query_histval < 0.60:
-                            self.track_db.pop(k)
-                            self._label -= 1
-                    print self.track_db
-		    print query_histval
 		
 
 
