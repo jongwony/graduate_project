@@ -41,7 +41,7 @@ function fileUpload(form, action_url, div_id) {
 
 						// img spread
 						var imgname = document.getElementById('tffile').files[0].name;
-						document.getElementById('trackimg').src="/static/uploads/" + imgname;
+						document.getElementById('trackimg').src="/static/uploads/Detection_" + imgname;
 
 
             // Del the iframe...

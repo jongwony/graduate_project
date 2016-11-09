@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 import os
 
-face_cascade = cv2.CascadeClassifier('haarcascades_cuda/haarcascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier('haarcascades/haarcascade_frontalface_default.xml')
 # eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 
 def detectionImage(uploadpath, filename):
@@ -15,7 +15,7 @@ def detectionImage(uploadpath, filename):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     # found face
-    faces = face_cascade.detectMultiScale(gray, 1.1, 5)
+    faces = face_cascade.detectMultiScale(gray, 1.08, 5)
     for x, y, w, h in faces:
         cv2.rectangle(img, (x, y),(x+w, y+h), (255,0,0), 2)
         #roi_gray = gray[y:y+h, x:x+w]
@@ -25,5 +25,6 @@ def detectionImage(uploadpath, filename):
         #    cv2.rectangle(roi_color, (ex, ey), (ex+ew, ey+eh),(0,255,0), 2)
 
     cv2.imwrite(outputpath, img)
-    return cv2.imread(outputpath)
+    return img
+
 

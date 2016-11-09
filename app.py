@@ -80,10 +80,9 @@ def image(info):
         return render_template('image.html')
     elif info == 'tfinfo':
         filename = app.config[info].getfilefullname()
-        detectimg = detectionImage(app.config['UPLOAD_PATH'], filename)
-	print detectimg.shape
+        img = detectionImage(app.config['UPLOAD_PATH'], filename)
 	import stream
-        stream.setQueryimg(detectimg)
+        stream.setQueryimg(img)
         return render_template('trackimg.html')
     else:
         return render_template('error.html')

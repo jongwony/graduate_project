@@ -9,8 +9,9 @@
 	<!-- indicators -->
 	<ol class='carousel-indicators'>
 		<li data-target='#carousel-example-generic' data-slide-to='0' class='active'></li>
-		<li data-target='#carousel-example-generic' data-slide-to='1' ></li>
-		<li data-target='#carousel-example-generic' data-slide-to='2' ></li>
+		<li data-target='#carousel-example-generic' data-slide-to='1'></li>
+		<li data-target='#carousel-example-generic' data-slide-to='2'></li>
+		<li data-target='#carousel-example-generic' data-slide-to='3'></li>
 	</ol>
 
 	<div class='carousel-inner' style='width:90%;height:450px;margin:auto' role='listbox'>
@@ -31,14 +32,25 @@
 			</div>
 		</div>
 		<div class="item">
-			<video style="width:100%" id='demotrack' autoplay loop muted onclick='this.play();'>
+			<video style="width:100%" id='trackdemo' autoplay loop muted onclick='this.play();'>
 				<source src="{{ url_for('static', filename='trackdemo.mp4') }}" type='video/mp4'>
 				Your browser does not support the Video
 			</video>
 			<div class="carousel-caption">
 				<h3>Tracking Algorithm</h3>
-				<p style="color:white">Optical Flow 기술을 이용하여 찾은 얼굴을 추적합니다.</p>
+				<p style="color:white">OpenCV의 Optical Flow 기술로 찾은 얼굴을 추적합니다.</p>
 			</div>
+		</div>
+		<div class="item">
+						<video style="width:100%" id='histdemo' autoplay loop muted onclick='this.play();'>
+										<source src="" type='video/mp4'>
+										Your browser does not support the Video 
+										</source>
+						</video>
+						<div class="carousel-caption">
+										<h3>Recognition Algorithm</h3>
+										<p style="color:white">OpenCV의 Histogram 기술로 비슷한 얼굴을 찾아냅니다.</p>
+						</div>
 		</div>
 	</div>
 

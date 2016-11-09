@@ -12,7 +12,7 @@ class VideoStream(object):
     def __init__(self, filename):
         
         self.video=cv2.VideoCapture(filename)
-        self.face_cascade = cv2.CascadeClassifier('haarcascades_cuda/haarcascade_frontalface_default.xml')
+        self.face_cascade = cv2.CascadeClassifier('haarcascades/haarcascade_frontalface_default.xml')
         
         # snapshot
         self.pre_gr = np.zeros
@@ -86,16 +86,17 @@ class VideoStream(object):
 	    if queryimg is not None:
 		queryhsv = cv2.cvtColor(queryimg, cv2.COLOR_BGR2HSV)
 		querygr = cv2.cvtColor(queryimg, cv2.COLOR_BGR2GRAY)
-	        queryfaces = self.face_cascade.detectMultiScale(querygr, scaleFactor=1.1, minNeighbors=3)		
+	        queryfaces = self.face_cascade.detectMultiScale(querygr, scaleFactor=1.2, minNeighbors=3)		
 		for x, y, w, h in queryfaces:
 		    self.roi_query = queryhsv[y:y+h, x:x+w]
+                    break
 		
-		self.query_hsv_hist = cv2.calcHist([self.roi_query], [0], None, [256], [0,256])
+		self.query_hsv_hist = cv2.calcHist([self.roi_query], [0], None, [200], [0,200])
 
 		
 		
 
-            faces = self.face_cascade.detectMultiScale(gr, scaleFactor=1.1, minNeighbors=3)
+            faces = self.face_cascade.detectMultiScale(gr, scaleFactor=1.2, minNeighbors=3)
             
 
             # face detection
@@ -125,11 +126,12 @@ class VideoStream(object):
             
 
             self.trackface += 1
-            self.trackface %= 2
+            self.trackface %= 3
             if self.trackface == 0:
                 self.beforefaces = faces
 
-                 
+            print len(self.track_db)
+
             for k, (x, y, w, h) in self.track_db.items():
                 nx, ny = self.opticalFlow(self.pre_gr, gr, (x, y, w, h))
                 cv2.rectangle(fr, (nx, ny), (nx+w, ny+h), (0,255,0), 1)
@@ -138,7 +140,7 @@ class VideoStream(object):
 		
 		
   
-                #    pre_hsv_hist = cv2.calcHist([self.pre_hsv[ny:ny+h, nx:nx+w]], [0], None, [180], [0,180])
+                    #pre_hsv_hist = cv2.calcHist([self.pre_hsv[ny:ny+h, nx:nx+w]], [0], None, [180], [0,180])
                 #    roi_hsv_hist = cv2.calcHist([hsv[y:y+h, x:x+w]], [0], None, [180], [0,180])
 
                 #    histval = cv2.compareHist(pre_hsv_hist, roi_hsv_hist, cv2.HISTCMP_CORREL)
@@ -148,10 +150,13 @@ class VideoStream(object):
 		
 
                 if self.roi_query is not None:
-                    query_histval = cv2.compareHist(self.query_hsv_hist, roi_hsv_hist, cv2.HISTCMP_CORREL)
-                    if query_histval < 0.60:
-                        self.track_db.pop(k)
-                        self._label -= 1
+                    if len(self.track_db) > 0:
+                        roi_hsv_hist = cv2.calcHist([hsv[y:y+h, x:x+w]], [0], None, [200], [0,200])
+                        query_histval = cv2.compareHist(self.query_hsv_hist, roi_hsv_hist, cv2.HISTCMP_CORREL)
+                        if query_histval < 0.60:
+                            self.track_db.pop(k)
+                            self._label -= 1
+                    print self.track_db
 		    print query_histval
 		
 
