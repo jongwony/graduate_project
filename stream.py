@@ -74,50 +74,54 @@ class VideoStream(object):
 		    self.roi_query = queryhsv[y:y+h, x:x+w]
                     break
 		
+		# matching histogram
 		self.query_hsv_hist = cv2.calcHist([self.roi_query], [0], None, [256], [0,256])
 
                 if self.roi_query is not None:
                     if len(self.track_db) > 0:
                         roi_hsv_hist = cv2.calcHist([hsv[y:y+h, x:x+w]], [0], None, [256], [0,256])
                         query_histval = cv2.compareHist(self.query_hsv_hist, roi_hsv_hist, cv2.HISTCMP_CORREL)
-                        if query_histval < 0.80:
+                        if query_histval < 0.90:
                             self.track_db.pop(k)
                             self._label -= 1
+			
+			print 'Matching Histogram %f %%' % round(query_histval*100,2)
 		
-		
-
-            faces = self.face_cascade.detectMultiScale(gr, scaleFactor=1.25, minNeighbors=3)
-            
-
+	
             # face detection
+            faces = self.face_cascade.detectMultiScale(gr, scaleFactor=1.25, minNeighbors=3)
             for x, y, w, h in faces:
                 cv2.rectangle(fr, (x, y), (x+w, y+h), (255,0,0), 2)
-                
                 self.detectface = True
 
 
+	    # merging area
             for x1, y1, w1, h1 in faces:
                 for x2, y2, w2, h2 in self.beforefaces:
                     if(np.abs(x1-x2)<w1/2 and np.abs(w1-w2)<30) or (np.abs(y1-y2)<h1/2 and np.abs(h1-h2)<30):
                         self.track_db[self._label] = list((x1, y1, w1, h1))
                         self._label += 1
-
+	
+	    # filtering area
             for k1, (x1, y1, w1, h1) in self.track_db.items():
                 for k2, (x2, y2, w2, h2) in self.track_db.items():
                     if k1 >= k2:
                         continue
+		    # move filter
                     if(np.abs(x1-x2)<w1/2 and np.abs(w1-w2)<30) or (np.abs(y1-y2)<h1/2 and np.abs(h1-h2)<30):
                         self.track_db[k1] = self.track_db.pop(k2)
                         self._label -= 1
+		    # scale filter
                     elif np.abs(x1-x2)<np.abs(w1-w2) or np.abs(y1-y2)<np.abs(h1-h2):
                         if x1>x2 and y1>y2:
                             self.track_db[k1] = self.track_db.pop(k2)
                             self._label -= 1
             
-
+	    # overfitting
             self.beforefaces = faces
 		
 
+	    # face tracking
             for k, (x, y, w, h) in self.track_db.items():
 		xs = int(round(0.75*x))
 		ys = int(round(0.75*y))
@@ -128,12 +132,14 @@ class VideoStream(object):
         	
 		# out of range
         	try:
+		    # optical flow dense algorithm
 		    flow = cv2.calcOpticalFlowFarneback(prev, curr, None, 0.5, 1, min(w, h), 3, 5, 1.2, 0)
 	
             	    for j in range(h):
                 	for i in range(w):
                     	    [ny, nx] = [y, x] + (flow[j,i])
         	except:
+		    print 'Track area out of range! Tracking quit!\n'
             	    self.track_db.pop(k)
 		    self._label -= 1
 		    break 
@@ -144,7 +150,7 @@ class VideoStream(object):
 
 		
 		
-  
+  		# histogram [h]sv color
                 pre_hsv_hist = cv2.calcHist([self.pre_hsv[ny:ny+h, nx:nx+w]], [0], None, [256], [0,256])
                 roi_hsv_hist = cv2.calcHist([hsv[y:y+h, x:x+w]], [0], None, [256], [0,256])
 
@@ -152,6 +158,7 @@ class VideoStream(object):
                 if histval < 0.88:
                     self.track_db.pop(k)
                     self._label -= 1
+		    print 'Histogram %f %% Tracking quit!\n' % round(histval*100,2)
 
 		
 
